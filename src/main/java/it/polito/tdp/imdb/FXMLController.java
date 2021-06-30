@@ -5,8 +5,10 @@
 package it.polito.tdp.imdb;
 
 import java.net.URL;
+import java.util.List;
 import java.util.ResourceBundle;
 
+import it.polito.tdp.imdb.model.Actor;
 import it.polito.tdp.imdb.model.Model;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -35,10 +37,10 @@ public class FXMLController {
     private Button btnSimulazione; // Value injected by FXMLLoader
 
     @FXML // fx:id="boxGenere"
-    private ComboBox<?> boxGenere; // Value injected by FXMLLoader
+    private ComboBox<String> boxGenere; // Value injected by FXMLLoader
 
     @FXML // fx:id="boxAttore"
-    private ComboBox<?> boxAttore; // Value injected by FXMLLoader
+    private ComboBox<Actor> boxAttore; // Value injected by FXMLLoader
 
     @FXML // fx:id="txtGiorni"
     private TextField txtGiorni; // Value injected by FXMLLoader
@@ -48,16 +50,43 @@ public class FXMLController {
 
     @FXML
     void doAttoriSimili(ActionEvent event) {
+    	txtResult.clear();
+    	 if(model.getGrafo()==null) {
+     		txtResult.setText("devi prima creare un grafo");
+     		return;
+     	}
+    	 Actor partenza=boxAttore.getValue();
+    	 if(partenza==null) {
+    		 txtResult.appendText("devi selezionare un attore di partenza");
+    		 return;
+    	 }
+    	 List<Actor>stampa=model.raggiungibili(partenza);
+    	 txtResult.appendText("attori simili a :");
+    	 for(Actor a:stampa) {
+    		 txtResult.appendText(a.toString()+"\n");
+    	 }
 
     }
 
     @FXML
     void doCreaGrafo(ActionEvent event) {
+    	txtResult.clear();
+    	String genere=boxGenere.getValue();
+    	if(genere==null) {
+    		txtResult.appendText("devi scegliere un genere");
+    		return;
+    	}
+    	 model.creaGrafo(genere);
+     	txtResult.appendText("grafo creato \n");
+     	txtResult.appendText("i vertici sono  "+model.getNVertici()+"\n");
+     	txtResult.appendText("gli archi sono  "+model.getNArchi()+"\n");
+     	boxAttore.getItems().addAll(model.getCombo());
 
     }
 
     @FXML
     void doSimulazione(ActionEvent event) {
+    	
 
     }
 
@@ -75,5 +104,7 @@ public class FXMLController {
     
     public void setModel(Model model) {
     	this.model = model;
+    	boxGenere.getItems().addAll(model.generi());
+    
     }
 }
